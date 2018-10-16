@@ -1,7 +1,13 @@
 package pkgGame;
 
+//tanyanes on github
+
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 import pkgEnum.ePuzzleViolation;
@@ -89,6 +95,52 @@ public class Sudoku extends LatinSquare {
 	 * @since Lab #2
 	 * @return - returns the LatinSquare instance
 	 */
+	
+	//cell class
+	private class Cell {
+		private HashMap<Cell, Integer> hashMap = new HashMap<Cell, Integer>(); 
+		
+		private int value = 0;
+		private int iRow, iCol;
+		private int[] firstValidValues;
+		
+		public Cell (int iRow, int iCol, int[] firstValidValues) {
+			Integer[] validValues = new Integer[iSize];
+			for (int i = 0; i < validValues.length; i++) {
+				validValues[i] = i + 1;
+			}
+			
+			
+			this.iRow = iRow;
+			this.iCol = iCol;
+			this.firstValidValues = firstValidValues;
+		}
+		
+		public int getiRow () {
+			return iRow; 
+		}
+		
+		public int getiCol () {
+			return iCol;
+		}
+		
+		@Override
+		public int hashCode() {
+			int hashCode = Objects.hash(iRow, iCol);
+			return hashCode;
+		}
+		
+		public boolean equals() {
+			return false;
+		}
+		
+		
+		
+		
+	}
+	
+	
+	
 	public int[][] getPuzzle() {
 		return super.getLatinSquare();
 	}
@@ -248,21 +300,47 @@ public class Sudoku extends LatinSquare {
 	 * @return - returns 'true' if the proposed value is valid for the row and
 	 *         column
 	 */
-	public boolean isValidValue(int iCol, int iRow, int iValue) {
-
-		if (doesElementExist(super.getRow(iRow), iValue)) {
-			return false;
-		}
+	
+	/* checks to see if value is valid for given column
+	 * iCol - given column index
+	 * iValue - proposed value to test
+	 */
+	public boolean isValidColumnValue(int iCol, int iValue) {
 		if (doesElementExist(super.getColumn(iCol), iValue)) {
 			return false;
 		}
+		return true;
+	}
+	
+	/* checks to see if value is valid for given row
+	 * iRow - given column index
+	 * iValue - proposed value to test
+	 */
+	public boolean isValidRowValue(int iRow, int iValue) {
+		if (doesElementExist(super.getRow(iRow), iValue)) {
+			return false;
+		}
+		return true;
+	}
+	
+	/* checks to see if value is valid for given region
+	 * iReg - given region index
+	 * iValue - proposed value to test
+	 */
+	public boolean isValidRegionValue(int iRow, int iCol, int iValue) {
 		if (doesElementExist(this.getRegion(iCol, iRow), iValue)) {
 			return false;
 		}
-
 		return true;
 	}
-
+	
+	public boolean isValidValue(int iCol, int iRow, int iValue) {
+		if (isValidColumnValue(iCol, iValue) && isValidRowValue(iRow, iValue) && isValidRegionValue(iRow, iCol, iValue)) {
+					return true;
+				}
+		return false;
+	}
+	
 	/*
 	 * Returns a region number based on a given column and row iCol = given column
 	 * number, iRow = given row number
@@ -301,20 +379,7 @@ public class Sudoku extends LatinSquare {
 
 	}
 
-	// after the puzzle is created, sets the diagonal regions with
-	// random values
-
-	public void FillDiagonalRegions() {
-		for (int i = 0; i < iSqrtSize; i++) {
-			if (i == 0) {
-				SetRegion(i);
-			} else {
-				SetRegion(i * iSqrtSize + 1);
-			}
-		}
-	}
-
-	// shuffleArray will shuffle a given 1d array
+		// shuffleArray will shuffle a given 1d array
 	// arr = given 1d array
 	// random helps to pick a random index from current position i to the length of
 	// the array
@@ -362,6 +427,17 @@ public class Sudoku extends LatinSquare {
 		}
 
 	}
+	
+	// after the puzzle is created, sets the diagonal regions with
+	// random values
+
+			public void FillDiagonalRegions() {
+				for (int i = 0; i < iSize; i = i + iSqrtSize) {
+					System.out.println("Filling region: " + getRegionNbr(i, i));
+					SetRegion(getRegionNbr(i,i));
+					ShuffleRegion(getRegionNbr(i,i));
+					}
+			}
 
 	// prints the puzzle to the console with
 	// space between columns
@@ -371,14 +447,50 @@ public class Sudoku extends LatinSquare {
 		
 		int[][] puzzle = getPuzzle();
 		
-		for (int i = 0; i < iSqrtSize; i++) {
-			for (int j = 0; j < iSqrtSize; j++) {
-				if (j == iSqrtSize - 1)
-					System.out.print(puzzle[j][i] + "\n");
-				else
-					System.out.print(puzzle[j][i] + " ");
-
+		for (int i = 0; i < this.getPuzzle().length; i++) {
+			System.out.println("");
+			for (int j = 0; j < this.getPuzzle().length; j++) {
+				System.out.println(this.getPuzzle()[i][j]);
+				// finish editing this code
 			}
 		}
 	}
+	
+	/* Lab 4: implement isValidColumnValue, isValidRowValue, isValidRegionValue
+	 * Refactor isValidValue to call these new methods
+	 * implement fillRemaining(int,int) which will determine a valid value for the remaining cells
+	 */
+	
+	
+	public void fillRemaining(int iRow, int iCol) {
+		
+		for (int i = 0; i < iSize; i++) {
+			for (int j = 0; j < iSize; j++) {
+				if (getPuzzle()[iRow][iCol] == 0) {
+					for (int k = 1; k <= iSize; k++) {
+						if (isValidValue(iCol, iRow, k)) {
+							getPuzzle()[iRow][iCol] = k;
+						}
+					}
+				}
+			}
+		
+		}
+		
+		// want to look through all of the values
+		// if a value == 0, then set it to a valid value
+		
+		//can be done using recursion (the method calling itself)
+		//is going to use isValueValid
+		//when the method returns a true, the value works
+		//when the method returns false, we backtrack
+		// fill by going across the rows
+		
+		
+		
+		
+		
+	}
+	
+	
 }
