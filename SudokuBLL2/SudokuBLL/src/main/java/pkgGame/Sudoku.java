@@ -4,6 +4,7 @@ package pkgGame;
 
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -104,18 +105,6 @@ public class Sudoku extends LatinSquare {
 		private int iRow, iCol;
 		private int[] firstValidValues;
 		
-		public Cell (int iRow, int iCol, int[] firstValidValues) {
-			Integer[] validValues = new Integer[iSize];
-			for (int i = 0; i < validValues.length; i++) {
-				validValues[i] = i + 1;
-			}
-			
-			
-			this.iRow = iRow;
-			this.iCol = iCol;
-			this.firstValidValues = firstValidValues;
-		}
-		
 		public int getiRow () {
 			return iRow; 
 		}
@@ -130,10 +119,13 @@ public class Sudoku extends LatinSquare {
 			return hashCode;
 		}
 		
-		public boolean equals() {
+		public boolean equals(Object o) {
 			return false;
 		}
 		
+		public int[] getFirstValidValues() {
+			return null;
+		}
 		
 		
 		
