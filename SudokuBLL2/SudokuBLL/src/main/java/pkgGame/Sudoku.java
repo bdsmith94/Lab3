@@ -132,19 +132,15 @@ public class Sudoku extends LatinSquare {
 			}
 		}
 		
+		HashSet<Integer> hsUsedValues = new HashSet<Integer>();
+
+		Collections.addAll(hsUsedValues, Arrays.stream(super.getRow(iRow)).boxed().toArray(Integer[]::new));
+		
+		Collections.addAll(hsUsedValues, Arrays.stream(super.getColumn(iCol)).boxed().toArray(Integer[]::new));
+		Collections.addAll(hsUsedValues, Arrays.stream(this.getRegion(iCol, iRow)).boxed().toArray(Integer[]::new));
+
+		hsCellRange.removeAll(hsUsedValues);
 		return hsCellRange;
-//		for (int i = 0; i < iSize; i++) {
-//		hsCellRange.add(i + 1);
-//		}
-//		HashSet<Integer> hsUsedValues = new HashSet<Integer>();
-//
-//		Collections.addAll(hsUsedValues, Arrays.stream(super.getRow(iRow)).boxed().toArray(Integer[]::new));
-//
-//		Collections.addAll(hsUsedValues, Arrays.stream(super.getColumn(iCol)).boxed().toArray(Integer[]::new));
-//		Collections.addAll(hsUsedValues, Arrays.stream(this.getRegion(iCol, iRow)).boxed().toArray(Integer[]::new));
-//
-//		hsCellRange.removeAll(hsUsedValues);
-//		return hsCellRange;
 		}
 	
 	private void SetCells() {
@@ -185,7 +181,7 @@ public class Sudoku extends LatinSquare {
 					return true;
 				//this.PrintPuzzle();
 
-				//this.getPuzzle()[c.getiRow()][c.getiCol()] = 0;
+				this.getPuzzle()[c.getiRow()][c.getiCol()] = 0;
 			}
 		}
 		return false;
