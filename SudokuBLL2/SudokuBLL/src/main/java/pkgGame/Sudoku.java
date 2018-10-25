@@ -119,19 +119,32 @@ public class Sudoku extends LatinSquare {
 	private HashSet<Integer> getAllValidCellValues(int iCol, int iRow) {
 
 		HashSet<Integer> hsCellRange = new HashSet<Integer>();
-		for (int i = 0; i < iSize; i++) {
-		hsCellRange.add(i + 1);
+		
+		if (this.getPuzzle()[iRow][iCol] != 0) {
+			hsCellRange.add(this.getPuzzle()[iRow][iCol]);
 		}
-		HashSet<Integer> hsUsedValues = new HashSet<Integer>();
-
-		Collections.addAll(hsUsedValues, Arrays.stream(super.
-		getRow(iRow)).boxed().toArray(Integer[]::new));
-
-		Collections.addAll(hsUsedValues, Arrays.stream(super.getColumn(iCol)).boxed().toArray(Integer[]::new));
-		Collections.addAll(hsUsedValues, Arrays.stream(this.getRegion(iCol, iRow)).boxed().toArray(Integer[]::new));
-
-		hsCellRange.removeAll(hsUsedValues);
+		
+		else {
+			for (int i = 1; i <= iSize; i++) {
+				if (isValidValue(iRow,iCol,i)) {
+					hsCellRange.add(i);
+				}
+			}
+		}
+		
 		return hsCellRange;
+//		for (int i = 0; i < iSize; i++) {
+//		hsCellRange.add(i + 1);
+//		}
+//		HashSet<Integer> hsUsedValues = new HashSet<Integer>();
+//
+//		Collections.addAll(hsUsedValues, Arrays.stream(super.getRow(iRow)).boxed().toArray(Integer[]::new));
+//
+//		Collections.addAll(hsUsedValues, Arrays.stream(super.getColumn(iCol)).boxed().toArray(Integer[]::new));
+//		Collections.addAll(hsUsedValues, Arrays.stream(this.getRegion(iCol, iRow)).boxed().toArray(Integer[]::new));
+//
+//		hsCellRange.removeAll(hsUsedValues);
+//		return hsCellRange;
 		}
 	
 	private void SetCells() {
@@ -165,14 +178,14 @@ public class Sudoku extends LatinSquare {
 			return true;
 
 		for (int num : c.getlstValidValues()) {
-			if (isValidValue(c.getiRow(), c.getiCol(), num)) { //fixed this
+			if (isValidValue(c, num)) { //fixed this
 				this.getPuzzle()[c.getiRow()][c.getiCol()] = num;
 
 				if (fillRemaining(c.GetNextCell(c))) //recursive statement
 					return true;
-				this.PrintPuzzle();
+				//this.PrintPuzzle();
 
-				this.getPuzzle()[c.getiRow()][c.getiCol()] = 0;
+				//this.getPuzzle()[c.getiRow()][c.getiCol()] = 0;
 			}
 		}
 		return false;
@@ -460,6 +473,10 @@ public class Sudoku extends LatinSquare {
 		return false;
 	}
 	
+	public boolean isValidValue(Cell c, int iValue) {
+		return this.isValidValue(c.getiRow(), c.getiCol(), iValue);
+	}
+	
 	/*
 	 * Returns a region number based on a given column and row iCol = given column
 	 * number, iRow = given row number
@@ -543,8 +560,8 @@ public class Sudoku extends LatinSquare {
 						System.out.println(" ");
 
 				}
+				System.out.println("end");
 			}
-	
 	/* Lab 4: implement isValidColumnValue, isValidRowValue, isValidRegionValue
 	 * Refactor isValidValue to call these new methods
 	 * implement fillRemaining(int,int) which will determine a valid value for the remaining cells
