@@ -735,7 +735,7 @@ public class Sudoku extends LatinSquare implements Serializable {
 
 	// checks to see if the difficulty is met based on the PossibleValuesMultiplier
 	// sets cells to zero until the game's difficulty is met
-	public void RemoveCells() {
+	private void RemoveCells() {
 		Random rand = new SecureRandom();
 		int r1 = rand.nextInt(iSize);
 		int r2 = rand.nextInt(iSize);
