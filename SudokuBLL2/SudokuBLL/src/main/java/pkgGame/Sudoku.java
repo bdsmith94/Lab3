@@ -7,9 +7,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
+
+import org.apache.poi.ss.formula.functions.Value;
 
 import javassist.bytecode.Descriptor.Iterator;
 import pkgEnum.eGameDifficulty;
@@ -50,7 +53,7 @@ public class Sudoku extends LatinSquare implements Serializable {
 	private HashMap<Integer, SudokuCell> cells = new HashMap<Integer, SudokuCell>();
 	
 	//new attribute for difficulty
-	private eGameDifficulty difficulty;
+	private eGameDifficulty difficulty = eGameDifficulty.EASY;
 	
 	
 	/**
@@ -163,7 +166,7 @@ public class Sudoku extends LatinSquare implements Serializable {
 		}
 	}
 	
-	private void SetRemainingCells() {
+	public void SetRemainingCells() {
 		for (int iRow = 0; iRow < iSize; iRow++) {
 			for (int iCol = 0; iCol < iSize; iCol++) {
 				SudokuCell c = new SudokuCell(iRow, iCol);
@@ -609,7 +612,7 @@ public class Sudoku extends LatinSquare implements Serializable {
 	 * @author Bert.Gibbons
 	 *
 	 */
-	private class SudokuCell extends Cell {
+	public class SudokuCell extends Cell {
 
 		private int iRow;
 		private int iCol;
@@ -640,7 +643,7 @@ public class Sudoku extends LatinSquare implements Serializable {
 		}
 		
 		public ArrayList<Integer> getlstRemainingValues() {
-			return lstRemainingValues;
+			return lstValidValues;
 		}
 
 
@@ -705,78 +708,40 @@ public class Sudoku extends LatinSquare implements Serializable {
 	
 	
 	//PossibleValuesMultiplier - will return back an integer calculated from the possible remaining values
-	private static int PossibleValuesMultiplier (HashMap<Integer,Sudoku.SudokuCell> cells) throws Exception {
+	private static int PossibleValuesMultiplier (HashMap<Integer,Sudoku.SudokuCell> cells) {
 		int multiplier = 1;
-		//Step 1: generate sudoku with constructor
-		Sudoku s = new Sudoku(iSize);
-		int[][] newPuzzle = s.getPuzzle();
-		//Step 2: randomly set cells to zero
-		for (int i = 0; i < newPuzzle.length; i++) {
-			for (int j = 0; j < newPuzzle.length; j++) {
-				newPuzzle[i][j] = (int) (Math.random()*iSize);
-			}
-		}
-		//Step 3: set lstRemainingValues w remaining possible values
-		HashSet<Integer> usedValues = new HashSet<Integer>(cells.keySet());
-				
-		for (int iRow = 0; iRow < iSize; iRow++) {
-			for (int iCol = 0; iCol < iSize; iCol++) {
-				HashSet<Integer> validValues = s.getAllValidCellValues(iCol, iRow);
-
-				for (int a : newPuzzle[iRow]) {
-					for (int b : newPuzzle[iCol]) {
-						if (!validValues.add(a))
-							usedValues.add(a);
-						
-						validValues.removeAll(usedValues);
-					}
-				}
-				
-				HashSet<Integer> lstRemainingValues = validValues;
-				Iterator it = (Iterator) cells.entrySet().iterator();
-				while (it.hasNext()) {
-					int next = it.next();
-					multiplier = lstRemainingValues.size() * next;
-				}
-			}
-		}
 		
+		for (SudokuCell i : cells.values()) {
+			multiplier *= i.getLstValidValues().size();
+			if (multiplier > Integer.MAX_VALUE) {
+				return Integer.MAX_VALUE;
+			}
+			else {
+				multiplier *= i.getLstValidValues().size();
+			}
+		}
 		return multiplier;
-		
 	}
 	
 	// is difficulty met
 	private boolean isDifficultyMet(int iPossibleValues) {
-		Sudoku s = new Sudoku();
-		
-		if (100 <= iPossibleValues && 499 >= iPossibleValues) {
-			if (s.difficulty == eGameDifficulty.EASY) 
-			return true;
-		}
-		
-		if (500 <= iPossibleValues && 999 >= iPossibleValues) {
-			if (s.difficulty == eGameDifficulty.MEDIUM) 
-			return true;
-		}
-		
-		if (1000 >= iPossibleValues) {
-			if (s.difficulty == eGameDifficulty.HARD) 
-			return true;
-		}
-		
-		return false;
+		return (eGameDifficulty.get(Sudoku.PossibleValuesMultiplier(cells)) == difficulty);
 	}
 	
+	//a getter for difficulty
+	private eGameDifficulty getDifficulty() {
+		return difficulty;
+	}
+
 	// checks to see if the difficulty is met based on the PossibleValuesMultiplier
 	// sets cells to zero until the game's difficulty is met
-	private void RemoveCells() throws Exception {
-		Sudoku s = new Sudoku(iSize);
-		HashMap<Integer,Sudoku.SudokuCell> cells = s.cells;
-		// if difficulty is not met, set the next cell in the HashMap = 0
-		if (!(isDifficultyMet(PossibleValuesMultiplier(cells)))) {
-			Iterator it = (Iterator) cells.entrySet().iterator();
-			int next = it.next();
-			next = 0;
-		}
+	private void RemoveCells() {
+		Random rand = new SecureRandom();
+		int r1 = rand.nextInt(iSize);
+		int r2 = rand.nextInt(iSize);
+		
+		this.getPuzzle()[r1][r2] = 0;
 	}
+	
+	
 }

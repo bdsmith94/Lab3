@@ -25,8 +25,8 @@ public enum eGameDifficulty {
 		return iDifficultyValue;
 	 }
 
-	 public static eGameDifficulty get(Integer difficulty) {
-		 return lookup.get(difficulty);
+	 public static eGameDifficulty get(int iPossibleValues) {
+		 return lookup.get(iPossibleValues);
 	 }
 	    
 }
